@@ -13,7 +13,8 @@ class ManageCenter:
     def __init__(self):
         pass
 
-    def run(self):
+    @staticmethod
+    def run():
         while True:
             print("\n欢迎进入CLASS_SYSTEM系统\n"
                   "1 学生视图\n"
@@ -62,12 +63,12 @@ class SchoolManage:
                 self.choice_school = choice_school
                 self.school_obj = self.school_db[choice_school]
                 while True:
-                    print("\n欢迎来到老男孩%s校区\n"
+                    print("\n欢迎来到%s校区\n"
                           "添加课程 add_course\n"
-                          "增加班级 add_class\n"
+                          "增加班级 add_classes\n"
                           "招聘讲师 add_teacher\n"
                           "查看课程 check_course\n"
-                          "查看班级 check_class\n"
+                          "查看班级 check_classes\n"
                           "查看讲师 check_teacher\n"
                           "退出程序 exit" % self.school_obj.school_name)
                     user_func = input('''\033[34;0m输入要操作的命令：\033[0m''').strip()
@@ -75,6 +76,30 @@ class SchoolManage:
                         getattr(self, user_func)()
             else:
                 print("\33[31;1m输入错误：请输入正确的学校名\33[0m")
+
+    def add_course(self):
+        course_name = input('''\033[34;0m输入要添加课程的名称：\033[0m''').strip()
+        course_price = input('''\033[34;0m输入要添加课程的价格：\033[0m''').strip()
+        course_time = input('''\033[34;0m输入要添加课程的时长：\033[0m''').strip()
+
+        if course_name in self.school_obj.school_course:
+            print("\33[32;1m课程存在\33[0m")
+            pass
+
+    def add_classes(self):
+        print('add_classes')
+
+    def add_teacher(self):
+        print('add_teacher')
+
+    def check_course(self):
+        print('check_course')
+
+    def check_classes(self):
+        print('check_classes')
+
+    def check_teacher(self):
+        print('check_teacher')
 
 
 class CourseManage:
