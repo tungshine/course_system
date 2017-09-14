@@ -4,7 +4,7 @@
 
 
 import os
-import shelve
+import pickle
 from conf import setting
 from module.school import School
 
@@ -39,8 +39,8 @@ class SchoolManage:
     """学校管理视图"""
 
     def __init__(self):
-        if os.path.exists(setting.school_db_file + '.dat'):
-            self.school_db = shelve.open(setting.school_db_file)
+        if os.path.exists(setting.school_db_file):
+            self.school_db = pickle.load(setting.read_school_file)
             self.school_manage()
             self.school_db.close()
         else:
@@ -50,9 +50,10 @@ class SchoolManage:
             self.school_db.close()
 
     def initialize_school(self):
-        self.school_db = shelve.open(setting.school_db_file)
+        self.school_db = dict()
         self.school_db['北京'] = School('北京', '中国.北京')
         self.school_db['上海'] = School('上海', '中国.上海')
+        pickle.dump(self.school_db, setting.write_school_file)
 
     def school_manage(self):
         while True:
@@ -62,15 +63,16 @@ class SchoolManage:
             if choice_school in self.school_db:
                 self.choice_school = choice_school
                 self.school_obj = self.school_db[choice_school]
+                print(self.school_obj)
                 while True:
                     print("\n欢迎来到%s校区\n"
-                          "添加课程 add_course\n"
-                          "增加班级 add_classes\n"
-                          "招聘讲师 add_teacher\n"
-                          "查看课程 check_course\n"
-                          "查看班级 check_classes\n"
-                          "查看讲师 check_teacher\n"
-                          "退出程序 exit" % self.school_obj.school_name)
+                          "1 添加课程 add_course\n"
+                          "2 增加班级 add_classes\n"
+                          "3 招聘讲师 add_teacher\n"
+                          "4 查看课程 show_course\n"
+                          "5 查看班级 show_classes\n"
+                          "6 查看讲师 show_teacher\n"
+                          "q 退出程序 exit" % self.school_obj.school_name)
                     user_func = input('''\033[34;0m输入要操作的命令：\033[0m''').strip()
                     if hasattr(self, user_func):
                         getattr(self, user_func)()
@@ -84,22 +86,50 @@ class SchoolManage:
 
         if course_name in self.school_obj.school_course:
             print("\33[32;1m课程存在\33[0m")
-            pass
+            self.school_obj.create_course(course_name, course_time, course_price)
+            print("\33[32;1m课程更新完成\33[0m")
+        else:
+            self.school_obj.create_course(course_name, course_time, course_price)
+            print("\33[32;1m课程添加成功\33[0m")
+            self.school_db[self.choice_school] = self.school_obj
+            pickle.dump(self.school_db, setting.write_school_file)
+
+    def show_course(self):
+        self.school_obj.show_course()
 
     def add_classes(self):
-        print('add_classes')
+        classes_name = input('''\033[34;0m输入要添加班级的名称：\033[0m''').strip()
+        course_name = input('''\033[34;0m输入要关联的课程：\033[0m''').strip()
+        if classes_name not in self.school_obj.school_classes:
+            if course_name in self.school_obj.school_course:
+                self.school_obj.create_classes(classes_name, self.school_obj.school_course[course_name])
+                self.school_db.update({self.choice_school: self.school_obj})
+            else:
+                print("\33[31;1m系统错误：关联的课程不存在\33[0m")
+        else:
+            print("\33[31;1m系统错误：班级已经存在\33[0m")
+
+    def show_classes(self):
+        self.school_obj.show_classes()
 
     def add_teacher(self):
-        print('add_teacher')
+        teacher_name = input('''\033[34;0m输入要添加教师的名称：\033[0m''').strip()
+        teacher_salary = input('''\033[34;0m输入要添加教师的薪资：\033[0m''').strip()
+        classes_name = input('''\033[34;0m输入要关联的班级：\033[0m''').strip()
+        if teacher_name not in self.school_obj.school_teacher:
+            if classes_name in self.school_obj.school_classes:
+                self.school_obj.create_teacher(teacher_name, teacher_salary, classes_name,
+                                               self.school_obj.school_classes[classes_name])
+            else:
+                self.school_obj.create_teacher(teacher_name, teacher_salary, classes_name,
+                                               self.school_obj.school_classes[classes_name])
+                print("\33[32;1m讲师已经存在，信息更新完成\33[0m")
 
-    def check_course(self):
-        print('check_course')
+        else:
+            print("\33[31;1m系统错误：教师已经存在\33[0m")
 
-    def check_classes(self):
-        print('check_classes')
-
-    def check_teacher(self):
-        print('check_teacher')
+    def show_teacher(self):
+        self.school_obj.show_teacher()
 
 
 class CourseManage:

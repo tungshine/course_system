@@ -4,10 +4,10 @@
 
 
 class Teacher:
-    def __init__(self, name, age, sex, salary, school, course):
-        self.name = name
-        self.age = age
-        self.sex = sex
-        self.salary = salary
-        self.school = school
-        self.course = course
+    def __init__(self, teacher_name, teacher_salary):
+        self.teacher_name = teacher_name
+        self.teacher_salary = teacher_salary
+        self.teacher_classes = []
+
+    def teacher_add_classes(self, classes_name, classes_obj):
+        self.teacher_calsses[classes_name] = classes_obj

@@ -4,5 +4,6 @@
 
 
 class Classes:
-    def __init__(self):
-        pass
+    def __init__(self, classes_name, course_obj):
+        self.classes_name = classes_name
+        self.course_obj = course_obj
